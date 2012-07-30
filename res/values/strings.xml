@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">US Gas Prices</string>
+    <string name="gallons_hint">Gallons</string>
+    <string name="enter_gallons">Enter USD / gallon</string>
+    <string name="exchange_rate">Exchange Rate, 1 USD = 1.0291 CAD</string>
+</resources>

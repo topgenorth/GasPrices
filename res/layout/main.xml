@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+        >
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/exchange_rate"
+        android:textSize="18dp"
+        />
+
+    <EditText
+        android:id="@+id/gallons"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:inputType="numberDecimal"
+        android:hint="@string/gallons_hint"
+        android:textSize="36dp"
+        />
+
+    <TextView
+        android:id="@+id/litres"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:textSize="36dp"
+        android:gravity="right"
+        android:text="0"
+        />
+</LinearLayout>
+
