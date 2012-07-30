@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/refresh_exchange_rage"
+          android:icon="@drawable/ic_menu_refresh_exchange_rate"
+          android:title="@string/menu_refresh_exchange_rate"
+          />
+</menu>

@@ -4,4 +4,6 @@
     <string name="gallons_hint">Gallons</string>
     <string name="enter_gallons">Enter USD / gallon</string>
     <string name="exchange_rate">Exchange Rate, 1 USD = 1.0291 CAD</string>
+
+    <string name="menu_refresh_exchange_rate">Refresh Exchange Rate</string>
 </resources>
