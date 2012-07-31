@@ -1,6 +1,7 @@
 package net.opgenorth.gallonstolitres;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -79,6 +80,9 @@ public class activity_main extends Activity {
             case R.id.refresh_exchange_rage:
                 Log.d(Globals.TAG, "User requested that a new exchange rate be downloaded.");
                 downloadExchangeRate();
+                return true;
+            case R.id.preferences:
+                startActivity(new Intent(this, EditPreferences.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
