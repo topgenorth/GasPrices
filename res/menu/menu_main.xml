@@ -5,6 +5,5 @@
           android:icon="@drawable/ic_menu_refresh_exchange_rate"
           android:title="@string/menu_refresh_exchange_rate"
           />
-    <item android:id="@+id/preferences"
-          android:title="@string/menu_preferences"/>
+
 </menu>

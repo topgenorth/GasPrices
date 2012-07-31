@@ -2,8 +2,10 @@ package net.opgenorth.gallonstolitres;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.*;
 import android.widget.EditText;
@@ -23,7 +25,13 @@ public class activity_main extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        _converter = new ConvertUSGasPriceToCanadian();
+
+        setContentView(R.layout.layout_main);
+        _converter = new ConvertUSGasPriceToCanadian(getLastExchangeRate());
+        _usdPerGallonEditText = (EditText) findViewById(R.id.gallons);
+        _canadianPriceTextView = (TextView) findViewById(R.id.litres);
+        _exchangeRateTextView = (TextView) findViewById(R.id.exchange_rate);
+
         _task = (GetExchangeRateTask) getLastNonConfigurationInstance();
         if (_task == null) {
             _task = new GetExchangeRateTask(this);
@@ -31,12 +39,7 @@ public class activity_main extends Activity {
         } else {
             _task.attach(this);
         }
-
-        setContentView(R.layout.layout_main);
-
-        _usdPerGallonEditText = (EditText) findViewById(R.id.gallons);
-        _canadianPriceTextView = (TextView) findViewById(R.id.litres);
-        _exchangeRateTextView = (TextView) findViewById(R.id.exchange_rate);
+        updateCentsPerLitre();
 
         _usdPerGallonEditText.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -49,9 +52,28 @@ public class activity_main extends Activity {
         });
     }
 
+    private double getLastExchangeRate() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean saveADefault = false;
+        double exchangeRate = Globals.DEFAULT_EXCHANGE_RATE;
+        try {
+            exchangeRate = new Double(prefs.getFloat("exchange_rate", 1.0f));
+
+        } catch (Exception e) {
+            Log.e(Globals.TAG, "There was a problem trying to get the exchange rate - assuming a default of par.", e);
+            saveADefault = true;
+        }
+
+        if (saveADefault) {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putFloat("exchange_rate", 1.0f);
+            editor.commit();
+        }
+        return exchangeRate;
+    }
+
     private void updateCentsPerLitre() {
         _exchangeRateTextView.setText(_converter.getFormattedExchangeRate());
-
         String txt = _usdPerGallonEditText.getText().toString();
         try {
             double usdPerGallon = Double.parseDouble(txt);
@@ -81,9 +103,6 @@ public class activity_main extends Activity {
                 Log.d(Globals.TAG, "User requested that a new exchange rate be downloaded.");
                 downloadExchangeRate();
                 return true;
-            case R.id.preferences:
-                startActivity(new Intent(this, EditPreferences.class));
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -94,6 +113,10 @@ public class activity_main extends Activity {
         if (_task.hasRun()) {
             _task = new GetExchangeRateTask(this);
         }
+        if (_task.isRunning()) {
+            Log.d(Globals.TAG, "Already trying to download the exchange rates.");
+            return;
+        }
         _task.execute(EXCHANGE_RATE_URL);
 
     }
@@ -101,10 +124,16 @@ public class activity_main extends Activity {
     private static class GetExchangeRateTask extends AsyncTask<String, Void, Document> {
         private activity_main _activity;
         private boolean _hasRun = false;
+        private boolean _isRunning = false;
 
         private GetExchangeRateTask(activity_main activity) {
             this._activity = activity;
+        }
 
+
+        @Override
+        protected void onPreExecute() {
+            _isRunning = true;
         }
 
         @Override
@@ -122,19 +151,36 @@ public class activity_main extends Activity {
 
         @Override
         protected void onPostExecute(Document document) {
-
             _hasRun = true;
+            _isRunning = false;
+            double exchangeRate = 1.0;
+            boolean didParseExchangeRate = false;
             if (document == null) {
                 Log.w(Globals.TAG, "There is no document to scrape the exchange rate from.");
-                return;
+            } else {
+                try {
+                    IGetExchangeRate rer = new GetRoyalBankOfCanadaExchangeRate();
+                    exchangeRate = rer.getExchangeRate(document);
+                    didParseExchangeRate = true;
+                    Log.v(Globals.TAG, "Got a new exchange rate: " + _activity._converter.getExchangeRate());
+                } catch (Exception ex) {
+                    Log.e(Globals.TAG, "There was a problem trying to parse the exchange rate from the web page.", ex);
+                }
+            }
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_activity);
+
+            if (didParseExchangeRate) {
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putFloat("exchange_rate", new Float(exchangeRate));
+                editor.commit();
+                Log.d(Globals.TAG, "Updated the shared preferences with the new exchange rate.");
+            } else {
+                Log.w(Globals.TAG, "Could not get the exchange rate, defaulting to the previous exchange rate.");
+                exchangeRate = new Double(prefs.getFloat("exchange_rate", 1.0f));
             }
 
-            IGetExchangeRate rer = new GetRoyalBankOfCanadaExchangeRate();
-            Double exchangeRate = rer.getExchangeRate(document);
             _activity._converter.setExchangeRate(exchangeRate);
             _activity.updateCentsPerLitre();
-            Log.v(Globals.TAG, "Got a new exchange rate: " + _activity._converter.getExchangeRate());
-
         }
 
         public void attach(activity_main activity) {
@@ -147,6 +193,10 @@ public class activity_main extends Activity {
 
         public boolean hasRun() {
             return _hasRun;
+        }
+
+        public boolean isRunning() {
+            return _isRunning;
         }
     }
 }
