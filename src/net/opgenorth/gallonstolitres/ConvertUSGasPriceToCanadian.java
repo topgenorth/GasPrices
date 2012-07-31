@@ -27,10 +27,16 @@ public class ConvertUSGasPriceToCanadian {
         double cadPerGallon = usdPerGallons * _exchangeRate;
         double cadPerLitre = cadPerGallon / LITRES_PER_GALLON;
         return _gasPriceFormatter.format(cadPerLitre * 100) + " cents / litre";
-
     }
 
-    public String getExchangeRate() {
+    public String getFormattedExchangeRate() {
         return "1 USD = " + _exchangeRateFormatter.format(_exchangeRate) + " CAD";
+    }
+
+    public Double getExchangeRate() {
+        return _exchangeRate ;
+    }
+    public void setExchangeRate(Double exchangeRate) {
+        _exchangeRate = exchangeRate;
     }
 }
