@@ -1,7 +1,6 @@
 package net.opgenorth.gallonstolitres;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,7 +12,7 @@ import android.widget.TextView;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-public class activity_main extends Activity {
+public class MainActivity extends Activity {
     private TextView _canadianPriceTextView;
     private EditText _usdPerGallonEditText;
     private TextView _exchangeRateTextView;
@@ -122,11 +121,11 @@ public class activity_main extends Activity {
     }
 
     private static class GetExchangeRateTask extends AsyncTask<String, Void, Document> {
-        private activity_main _activity;
+        private MainActivity _activity;
         private boolean _hasRun = false;
         private boolean _isRunning = false;
 
-        private GetExchangeRateTask(activity_main activity) {
+        private GetExchangeRateTask(MainActivity activity) {
             this._activity = activity;
         }
 
@@ -183,7 +182,7 @@ public class activity_main extends Activity {
             _activity.updateCentsPerLitre();
         }
 
-        public void attach(activity_main activity) {
+        public void attach(MainActivity activity) {
             _activity = activity;
         }
 
