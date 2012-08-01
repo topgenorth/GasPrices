@@ -1,6 +1,11 @@
 package net.opgenorth.gallonstolitres;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,6 +22,7 @@ public class MainActivity extends Activity {
     private EditText _usdPerGallonEditText;
     private TextView _exchangeRateTextView;
     private GetExchangeRateTask _task;
+    private NotificationManager _notificationManager = null;
 
     private ConvertUSGasPriceToCanadian _converter;
     private static final String[] EXCHANGE_RATE_URL = new String[]{GetRoyalBankOfCanadaExchangeRate.EXCHANGE_RATE_URL};
@@ -24,6 +30,8 @@ public class MainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        _notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         setContentView(R.layout.layout_main);
         _converter = new ConvertUSGasPriceToCanadian(getLastExchangeRate());
@@ -121,6 +129,8 @@ public class MainActivity extends Activity {
     }
 
     private static class GetExchangeRateTask extends AsyncTask<String, Void, Document> {
+
+        public static final int NOTIFY_ME_ID = 1001;
         private MainActivity _activity;
         private boolean _hasRun = false;
         private boolean _isRunning = false;
@@ -168,15 +178,28 @@ public class MainActivity extends Activity {
             }
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(_activity);
 
+            String msg;
             if (didParseExchangeRate) {
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putFloat("exchange_rate", new Float(exchangeRate));
                 editor.commit();
                 Log.d(Globals.TAG, "Updated the shared preferences with the new exchange rate.");
+                msg = "New exchange rate : " + exchangeRate;
+
+
             } else {
                 Log.w(Globals.TAG, "Could not get the exchange rate, defaulting to the previous exchange rate.");
                 exchangeRate = new Double(prefs.getFloat("exchange_rate", 1.0f));
+                msg ="Error retrieving currency";
             }
+
+            Context ctx =  _activity.getApplicationContext();
+            Intent notificationIntent = new Intent(_activity, MainActivity.class);
+            PendingIntent contentIntent = PendingIntent.getActivity(_activity, 0, notificationIntent, 0);
+            Notification note = new Notification(R.drawable.ic_stat_currency_downloaded, msg, System.currentTimeMillis() );
+            note.setLatestEventInfo( ctx, "Gas Prices Exchange Rate Updated", msg, contentIntent);
+            note.flags |= Notification.FLAG_AUTO_CANCEL;
+            _activity._notificationManager.notify(NOTIFY_ME_ID, note);
 
             _activity._converter.setExchangeRate(exchangeRate);
             _activity.updateCentsPerLitre();
