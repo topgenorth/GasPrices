@@ -193,6 +193,13 @@ public class MainActivity extends Activity {
                 msg = "Error retrieving currency";
             }
 
+            postNotificationOfPriceChange(msg);
+
+            _activity._converter.setExchangeRate(exchangeRate);
+            _activity.updateCentsPerLitre();
+        }
+
+        private void postNotificationOfPriceChange(String msg) {
             Context ctx = _activity.getApplicationContext();
             Intent notificationIntent = new Intent(_activity, MainActivity.class);
             PendingIntent contentIntent = PendingIntent.getActivity(_activity, 0, notificationIntent, 0);
@@ -200,9 +207,6 @@ public class MainActivity extends Activity {
             note.setLatestEventInfo(ctx, "Gas Prices Exchange Rate Updated", msg, contentIntent);
             note.flags |= Notification.FLAG_AUTO_CANCEL;
             _activity._notificationManager.notify(NOTIFY_ME_ID, note);
-
-            _activity._converter.setExchangeRate(exchangeRate);
-            _activity.updateCentsPerLitre();
         }
 
         public void attach(MainActivity activity) {
