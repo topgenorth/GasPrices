@@ -190,14 +190,14 @@ public class MainActivity extends Activity {
             } else {
                 Log.w(Globals.TAG, "Could not get the exchange rate, defaulting to the previous exchange rate.");
                 exchangeRate = new Double(prefs.getFloat("exchange_rate", 1.0f));
-                msg ="Error retrieving currency";
+                msg = "Error retrieving currency";
             }
 
-            Context ctx =  _activity.getApplicationContext();
+            Context ctx = _activity.getApplicationContext();
             Intent notificationIntent = new Intent(_activity, MainActivity.class);
             PendingIntent contentIntent = PendingIntent.getActivity(_activity, 0, notificationIntent, 0);
-            Notification note = new Notification(R.drawable.ic_stat_currency_downloaded, msg, System.currentTimeMillis() );
-            note.setLatestEventInfo( ctx, "Gas Prices Exchange Rate Updated", msg, contentIntent);
+            Notification note = new Notification(R.drawable.ic_stat_currency_downloaded, msg, System.currentTimeMillis());
+            note.setLatestEventInfo(ctx, "Gas Prices Exchange Rate Updated", msg, contentIntent);
             note.flags |= Notification.FLAG_AUTO_CANCEL;
             _activity._notificationManager.notify(NOTIFY_ME_ID, note);
 

@@ -3,8 +3,6 @@ package net.opgenorth.gallonstolitres;
 import java.text.DecimalFormat;
 
 public class ConvertUSGasPriceToCanadian {
-
-
     private static final DecimalFormat _gasPriceFormatter = new DecimalFormat("###0");
     private static final DecimalFormat _exchangeRateFormatter = new DecimalFormat("0.0000");
 
@@ -17,7 +15,7 @@ public class ConvertUSGasPriceToCanadian {
     public String getCanadianPrice(double usdPerGallons) {
 
         double cadPerGallon = usdPerGallons * _exchangeRate;
-        double cadPerLitre = cadPerGallon / Globals.LITRES_PER_GALLON ;
+        double cadPerLitre = cadPerGallon / Globals.LITRES_PER_GALLON;
         return _gasPriceFormatter.format(cadPerLitre * 100) + " cents / litre";
     }
 
@@ -26,8 +24,9 @@ public class ConvertUSGasPriceToCanadian {
     }
 
     public Double getExchangeRate() {
-        return _exchangeRate ;
+        return _exchangeRate;
     }
+
     public void setExchangeRate(Double exchangeRate) {
         _exchangeRate = exchangeRate;
     }
